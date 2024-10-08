@@ -4,7 +4,7 @@ from datasets import load_dataset
 from peft import LoraConfig, prepare_model_for_kbit_training
 from transformers import AutoModelForCausalLM, AutoTokenizer, BitsAndBytesConfig
 from trl import ORPOConfig, ORPOTrainer
-
+import os
 from mlrun.execution import MLClientCtx
 
 
@@ -15,8 +15,6 @@ def train(
     new_model: str,
     device: str,
 ):
-    import os
-
     transformers.logging.set_verbosity_warning()
     os.environ["HF_TOKEN"] = context.get_secret(key="HF_TOKEN")
     dataset = load_dataset(dataset, split="train").shuffle(seed=42)

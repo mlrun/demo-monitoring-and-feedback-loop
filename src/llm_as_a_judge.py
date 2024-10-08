@@ -26,7 +26,7 @@ import mlrun
 import mlrun.common.schemas
 from mlrun.model import ModelObj
 from mlrun.model_monitoring.applications import (
-    ModelMonitoringApplicationBaseV2,
+    ModelMonitoringApplicationBase,
     ModelMonitoringApplicationResult,
 )
 from mlrun.utils import logger
@@ -565,7 +565,7 @@ STATUS_RESULT_MAPPING = {
 }
 
 
-class LLMAsAJudgeApplication(ModelMonitoringApplicationBaseV2):
+class LLMAsAJudgeApplication(ModelMonitoringApplicationBase):
     def __init__(
         self,
         **kwargs,
