@@ -126,7 +126,7 @@ def _set_function(
     # Configure GPUs according to the given kind:
     if gpus >= 1:
         mlrun_function.with_node_selection(
-            node_selector={"app.iguazio.com/node-group": "added-t4x4"}
+            node_selector={"alpha.eksctl.io/nodegroup-name": "added-t4x4"}
         )
         # All GPUs for the single job:
         mlrun_function.with_limits(gpus=gpus)
