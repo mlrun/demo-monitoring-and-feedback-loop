@@ -58,7 +58,7 @@ def generate_llm_wrong_answer(client, question):
     return content
 
 
-def generate_ds(context: MLClientCtx, input_ds: str,log_to_hf:bool =False):
+def generate_ds(context: MLClientCtx, input_ds: str, hf_repo_id:str =None):
     openai_api_key = context.get_secret(key="OPENAI_API_KEY")
     openai_api_base = context.get_secret(key="OPENAI_API_BASE")
     hf_token = context.get_secret(key="HF_TOKEN")
@@ -87,7 +87,7 @@ def generate_ds(context: MLClientCtx, input_ds: str,log_to_hf:bool =False):
     df.drop(inplace=True, columns=["answer", "explanation"])
     context.log_dataset("new-train-ds", df)
     context.logger.info("Dataframe logged")
-    if log_to_hf:
+    if hf_repo_id:
         # Upload the dataset to HuggingFace
         hf_dataset = Dataset.from_pandas(df)
         login(token=hf_token)
