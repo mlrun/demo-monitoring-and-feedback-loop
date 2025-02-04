@@ -93,10 +93,9 @@ def generate_ds(context: MLClientCtx, input_ds: str, hf_repo_id:str =None):
         login(token=hf_token)
 
         # Create a new repository on the Hugging Face Hub
-        repo_id = "mlrun/banking-orpo-new"
-        create_repo(repo_id, repo_type="dataset", exist_ok=True)
+        create_repo(hf_repo_id, repo_type="dataset", exist_ok=True)
 
         # Push the dataset to the Hub
-        hf_dataset.push_to_hub(repo_id)
-        context.log_result("dataset", repo_id)
+        hf_dataset.push_to_hub(hf_repo_id)
+        context.log_result("dataset", hf_repo_id)
         context.logger.info("Dataset uploaded to HF")
