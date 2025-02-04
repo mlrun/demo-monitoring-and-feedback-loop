@@ -40,8 +40,9 @@ def setup(
     # Unpack parameters:
     source = project.get_param(key="source")
     default_image = project.get_param(key="default_image")
+    node_selector = project.get_param(key="node_selector", default=None)
     # gpus = project.get_param(key="gpus", default=0)
-    # node_name = project.get_param(key="node_name", default=None)
+    node_name = project.get_param(key="node_name", default=None)
 
     # Set the project git source:
     if source:
@@ -61,7 +62,7 @@ def setup(
         func="model_server.py",
         name="llm-server",
         kind="serving",
-        image="gcr.io/iguazio/llm-serving:1.7.0",
+        image="gcr.io/iguazio/llm-serving:1.7.2",
         gpus=1,
     )
     _set_function(
@@ -69,8 +70,10 @@ def setup(
         func="train.py",
         name="train",
         kind="job",
-        image="gcr.io/iguazio/monitoring-demo-adapters:1.7.0",
+        image="gcr.io/iguazio/monitoring-demo-adapters:1.7.2",
         gpus=1,
+        node_selector=node_selector,
+        node_name=node_name,
     )
     _set_function(
         project=project,
@@ -78,13 +81,17 @@ def setup(
         name="metric-sample",
         kind="job",
         image="mlrun/mlrun",
+        node_selector=node_selector,
+        node_name=node_name,
     )
     _set_function(
         project=project,
         func="generate_ds.py",
         name="generate-ds",
         kind="job",
-        image="gcr.io/iguazio/llm-serving:1.7.0",
+        image="gcr.io/iguazio/llm-serving:1.7.2",
+        node_selector=node_selector,
+        node_name=node_name,
     )
 
     # Save and return the project:
@@ -113,6 +120,7 @@ def _set_function(
     gpus: int = 0,
     node_name: str = None,
     image: str = None,
+    node_selector: dict = None,
 ):
     # Set the given function:
     mlrun_function = project.set_function(
@@ -126,7 +134,7 @@ def _set_function(
     # Configure GPUs according to the given kind:
     if gpus >= 1:
         mlrun_function.with_node_selection(
-            node_selector={"alpha.eksctl.io/nodegroup-name": "added-t4x4"}
+            node_selector=node_selector
         )
         # All GPUs for the single job:
         mlrun_function.with_limits(gpus=gpus)

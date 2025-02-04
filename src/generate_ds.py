@@ -58,7 +58,7 @@ def generate_llm_wrong_answer(client, question):
     return content
 
 
-def generate_ds(context: MLClientCtx, input_ds: str):
+def generate_ds(context: MLClientCtx, input_ds: str, hf_repo_id:str =None):
     openai_api_key = context.get_secret(key="OPENAI_API_KEY")
     openai_api_base = context.get_secret(key="OPENAI_API_BASE")
     hf_token = context.get_secret(key="HF_TOKEN")
@@ -87,16 +87,15 @@ def generate_ds(context: MLClientCtx, input_ds: str):
     df.drop(inplace=True, columns=["answer", "explanation"])
     context.log_dataset("new-train-ds", df)
     context.logger.info("Dataframe logged")
+    if hf_repo_id:
+        # Upload the dataset to HuggingFace
+        hf_dataset = Dataset.from_pandas(df)
+        login(token=hf_token)
 
-    # Upload the dataset to HuggingFace
-    hf_dataset = Dataset.from_pandas(df)
-    login(token=hf_token)
+        # Create a new repository on the Hugging Face Hub
+        create_repo(hf_repo_id, repo_type="dataset", exist_ok=True)
 
-    # Create a new repository on the Hugging Face Hub
-    repo_id = "mlrun/banking-orpo-new"
-    create_repo(repo_id, repo_type="dataset", exist_ok=True)
-
-    # Push the dataset to the Hub
-    hf_dataset.push_to_hub(repo_id)
-    context.log_result("dataset", repo_id)
-    context.logger.info("Dataset uploaded to HF")
+        # Push the dataset to the Hub
+        hf_dataset.push_to_hub(hf_repo_id)
+        context.log_result("dataset", hf_repo_id)
+        context.logger.info("Dataset uploaded to HF")
