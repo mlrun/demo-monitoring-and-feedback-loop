@@ -40,9 +40,6 @@ def setup(
     # Unpack parameters:
     source = project.get_param(key="source")
     default_image = project.get_param(key="default_image")
-    node_selector = project.get_param(key="node_selector", default=None)
-    # gpus = project.get_param(key="gpus", default=0)
-    node_name = project.get_param(key="node_name", default=None)
 
     # Set the project git source:
     if source:
@@ -55,7 +52,7 @@ def setup(
         _build_image(project=project)
     else:
         project.set_default_image(default_image)
-
+        
     # Set functions
     _set_function(
         project=project,
@@ -72,15 +69,6 @@ def setup(
         kind="job",
         image="gcr.io/iguazio/monitoring-demo-adapters:1.7.2",
         gpus=1,
-        node_selector=node_selector,
-        node_name=node_name,
-    )
-    _set_function(
-        project=project,
-        func="metric_sample.py",
-        name="metric-sample",
-        kind="job",
-        image="mlrun/mlrun",
         node_selector=node_selector,
         node_name=node_name,
     )
