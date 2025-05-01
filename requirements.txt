@@ -1,6 +1,5 @@
-mlrun==1.7.2
 openai==1.55.3
-transformers==4.46.2
+transformers==4.51.0
 datasets==3.1.0
 trl==0.12.0
 peft==0.13.2
@@ -8,3 +7,4 @@ bitsandbytes==0.44.1
 sentencepiece==0.2.0
 deepeval==1.1.9
 protobuf==3.20.3
+pyarrow==17.0.0
