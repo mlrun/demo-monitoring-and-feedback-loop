@@ -90,7 +90,7 @@ def train(
         train_dataset=training_dataset["train"],
         eval_dataset=training_dataset["test"],
         peft_config=peft_config,
-        tokenizer=tokenizer,
+        processing_class=tokenizer,
     )
 
     # Apply training with evaluation:
