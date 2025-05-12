@@ -29,17 +29,25 @@ def setup(
     """
 
     # Adding secrets to the projects:
-    project.set_secrets(
-        {
-            "OPENAI_API_KEY": os.environ["OPENAI_API_KEY"],
-            "OPENAI_API_BASE": os.environ["OPENAI_BASE_URL"],
-            "HF_TOKEN": os.environ["HF_TOKEN"],
-        }
-    )
+    try:
+        project.set_secrets(
+            {
+                "OPENAI_API_KEY": mlrun.get_secret_or_env("OPENAI_API_KEY"),
+                "OPENAI_API_BASE": mlrun.get_secret_or_env("OPENAI_BASE_URL"),
+                "HF_TOKEN": mlrun.get_secret_or_env("HF_TOKEN"),
+            }
+        )
+    except:
+        pass
+        
 
     # Unpack parameters:
     source = project.get_param(key="source")
     default_image = project.get_param(key="default_image")
+    image = project.get_param(key="image", default=None)
+    node_selector = project.get_param(key="node_selector", default=None)
+    # gpus = project.get_param(key="gpus", default=0)
+    node_name = project.get_param(key="node_name", default=None)
 
     # Set the project git source:
     if source:
@@ -49,26 +57,41 @@ def setup(
     # Set or build the default image:
     if default_image is None:
         print("Building default image for the demo:")
-        _build_image(project=project)
+        _build_image(project=project,image=image)
     else:
         project.set_default_image(default_image)
-        
+        project.save()
+
     # Set functions
     _set_function(
         project=project,
         func="model_server.py",
         name="llm-server",
         kind="serving",
-        image="gcr.io/iguazio/llm-serving:1.7.2",
+        node_selector=node_selector,
         gpus=1,
     )
     _set_function(
         project=project,
+        image="mlrun/mlrun-gpu",
+        requirements=["torch",
+                      "bitsandbytes==0.45.5",
+                      "transformers",
+                      "peft==0.15.2",
+                      "trl==0.17.0"],
         func="train.py",
         name="train",
         kind="job",
-        image="gcr.io/iguazio/monitoring-demo-adapters:1.7.2",
         gpus=1,
+        node_selector=node_selector,
+        node_name=node_name,
+    )
+    _set_function(
+        project=project,
+        func="metric_sample.py",
+        name="metric-sample",
+        kind="job",
+        image="mlrun/mlrun",
         node_selector=node_selector,
         node_name=node_name,
     )
@@ -77,7 +100,6 @@ def setup(
         func="generate_ds.py",
         name="generate-ds",
         kind="job",
-        image="gcr.io/iguazio/llm-serving:1.7.2",
         node_selector=node_selector,
         node_name=node_name,
     )
@@ -87,9 +109,11 @@ def setup(
     return project
 
 
-def _build_image(project: mlrun.projects.MlrunProject):
+def _build_image(project: mlrun.projects.MlrunProject, image:str):
     assert project.build_image(
+        image=image,
         base_image="mlrun/mlrun-gpu",
+        requirements_file="./src/llm_server_requirements.txt",
         commands=[
             # Update apt-get to install ffmpeg (support audio file formats):
             "apt-get update -y",
@@ -98,6 +122,8 @@ def _build_image(project: mlrun.projects.MlrunProject):
         ],
         set_as_default=True,
     )
+    project.spec.params["default_image"] = image
+    project.save()
 
 
 def _set_function(
@@ -109,6 +135,7 @@ def _set_function(
     node_name: str = None,
     image: str = None,
     node_selector: dict = None,
+    requirements: list = None,
 ):
     # Set the given function:
     mlrun_function = project.set_function(
@@ -117,6 +144,7 @@ def _set_function(
         kind=kind,
         with_repo=False,
         image=image,
+        requirements=requirements,
     ).apply(mlrun.auto_mount())
 
     # Configure GPUs according to the given kind:
