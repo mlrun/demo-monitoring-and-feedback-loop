@@ -96,3 +96,4 @@ def train(
     # Apply training with evaluation:
     context.logger.info(f"training '{new_model}' based on '{base_model}'")
     trainer.train()
+    trainer.push_to_hub()
