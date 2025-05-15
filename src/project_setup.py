@@ -38,6 +38,8 @@ def setup(
             }
         )
     except:
+        print(
+            "Failed to set secrets. Please make sure you have the secrets set in the MLRun UI.")
         pass
         
 
@@ -83,15 +85,6 @@ def setup(
         name="train",
         kind="job",
         gpus=1,
-        node_selector=node_selector,
-        node_name=node_name,
-    )
-    _set_function(
-        project=project,
-        func="metric_sample.py",
-        name="metric-sample",
-        kind="job",
-        image="mlrun/mlrun",
         node_selector=node_selector,
         node_name=node_name,
     )
