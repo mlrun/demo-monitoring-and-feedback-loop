@@ -3,7 +3,6 @@ transformers==4.51.3
 datasets==3.5.1 
 sentencepiece==0.2.0
 deepeval==2.5.5
-protobuf==3.20.3
 pyarrow==16.1.0
 pydantic>=2.0
 mlrun
