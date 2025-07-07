@@ -12,7 +12,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 import os
-
+import sys
 import mlrun
 
 
@@ -75,12 +75,7 @@ def setup(
     )
     _set_function(
         project=project,
-        image="mlrun/mlrun-gpu",
-        requirements=["torch",
-                      "bitsandbytes==0.45.5",
-                      "transformers",
-                      "peft==0.15.2",
-                      "trl==0.17.0"],
+        image=project.default_image,
         func="train.py",
         name="train",
         kind="job",
@@ -95,8 +90,7 @@ def setup(
         kind="job",
         node_selector=node_selector,
         node_name=node_name,
-        requirements=["openai==1.77.0","datasets==3.5.1","huggingface-hub==0.31.1"],
-        image="mlrun/mlrun",
+        image=project.default_image,
         
     )
 
@@ -106,16 +100,21 @@ def setup(
 
 
 def _build_image(project: mlrun.projects.MlrunProject, image:str):
-    assert project.build_image(
-        image=image,
-        base_image="mlrun/mlrun-gpu",
-        requirements_file="./src/llm_server_requirements.txt",
-        commands=[
+    commands=[
             # Update apt-get to install ffmpeg (support audio file formats):
             "apt-get update -y",
             # Install demo requirements:
             "pip install torch --index-url https://download.pytorch.org/whl/cu118",
-        ],
+        ]
+    
+    if sys.version_info.major == 3 and sys.version_info.minor == 9:
+        commands+=["pip install protobuf==3.20.3"]
+
+    assert project.build_image(
+        image=image,
+        base_image="mlrun/mlrun-gpu",
+        commands=commands,
+        requirements_file="./src/llm_server_requirements.txt",
         set_as_default=True,
     )
     project.spec.params["default_image"] = image
