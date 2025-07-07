@@ -100,21 +100,23 @@ def setup(
 
 
 def _build_image(project: mlrun.projects.MlrunProject, image:str):
-    commands=[
-            # Update apt-get to install ffmpeg (support audio file formats):
-            "apt-get update -y",
-            # Install demo requirements:
-            "pip install torch --index-url https://download.pytorch.org/whl/cu118",
-        ]
+    requirements=['tqdm',
+                'openai==1.77.0',
+                'transformers==4.51.3',
+                'datasets==3.5.1 ',
+                'sentencepiece==0.2.0',
+                'deepeval==2.5.5',
+                'pyarrow==16.1.0',
+                'pydantic>=2.0',
+                'langchain==0.2.17']
     
     if sys.version_info.major == 3 and sys.version_info.minor == 9:
-        commands+=["pip install protobuf==3.20.3"]
+        requirements+=["protobuf==3.20.3"]
 
     assert project.build_image(
         image=image,
         base_image="mlrun/mlrun-gpu",
-        commands=commands,
-        requirements_file="./src/llm_server_requirements.txt",
+        requirements=requirements,
         set_as_default=True,
     )
     project.spec.params["default_image"] = image
