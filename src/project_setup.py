@@ -113,10 +113,18 @@ def _build_image(project: mlrun.projects.MlrunProject, image:str):
     if sys.version_info.major == 3 and sys.version_info.minor == 9:
         requirements+=["protobuf==3.20.3"]
 
+    commands=[
+            # Update apt-get to install ffmpeg (support audio file formats):
+            "apt-get update -y",
+            # Install demo requirements:
+            "pip install torch --index-url https://download.pytorch.org/whl/cu118",
+        ]
+
     assert project.build_image(
         image=image,
         base_image="mlrun/mlrun-gpu",
         requirements=requirements,
+        commands=commands,
         set_as_default=True,
     )
     project.spec.params["default_image"] = image
