@@ -102,6 +102,7 @@ def setup(
 def _build_image(project: mlrun.projects.MlrunProject, image:str):
     requirements=['tqdm',
                   'peft',
+                  'trl',
                   'openai==1.77.0',
                   'transformers==4.51.3',
                   'datasets==3.5.1 ',
