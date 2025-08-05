@@ -90,8 +90,8 @@ def setup(
         kind="job",
         node_selector=node_selector,
         node_name=node_name,
-        image=project.default_image,
-        
+        requirements=["openai==1.77.0","datasets==3.5.1","huggingface-hub==0.31.1"],
+        image="mlrun/mlrun",
     )
 
     # Save and return the project:
