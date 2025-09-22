@@ -6,7 +6,7 @@ transformers==4.56.1
 datasets==4.1.1
 sentencepiece==0.2.0
 deepeval==2.5.5
-pyarrow==16.1.0
+pyarrow>=21.0.0
 pydantic>=2.0
 langchain==0.2.17
 
