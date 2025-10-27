@@ -99,28 +99,29 @@ def setup(
     return project
 
 
-def _build_image(project: mlrun.projects.MlrunProject, image:str):
-    requirements=['tqdm==4.67.1',
-                  'peft==0.17.1',
-                  'trl==0.11.4',
-                  'openai==1.108.0',
-                  'transformers==4.56.1',
-                  'datasets==4.1.1',
-                  'sentencepiece==0.2.0',
-                  'deepeval==2.5.5',
-                  'pyarrow>=21.0.0',
-                  'pydantic>=2.0',
-                  'langchain==0.2.17']
-    
-    if sys.version_info.major == 3 and sys.version_info.minor == 9:
-        requirements+=["protobuf==3.20.3"]
+def _build_image(project: mlrun.projects.MlrunProject, image: str):
+    requirements = ['tqdm==4.67.1',
+                    'peft==0.17.1',
+                    'trl==0.11.4',
+                    'openai==1.108.0',
+                    'transformers==4.56.1',
+                    'datasets>=4.1.1',
+                    'sentencepiece==0.2.0',
+                    'deepeval==2.5.5',
+                    'pyarrow==17.0.0',
+                    'pydantic>=2.0',
+                    'langchain==0.2.17']
 
-    commands=[
-            # Update apt-get to install ffmpeg (support audio file formats):
-            "apt-get update -y",
-            # Install demo requirements:
-            "pip install torch --index-url https://download.pytorch.org/whl/cu118",
-        ]
+    if sys.version_info.major == 3 and sys.version_info.minor == 9:
+        requirements += ["protobuf==3.20.3"]
+
+    commands = [
+        # Update apt-get to install ffmpeg (support audio file formats):
+        "apt-get update -y",
+        # Install demo requirements:
+        "pip install torch --index-url https://download.pytorch.org/whl/cu118",
+        "echo '' > /empty/requirements.txt"
+    ]
 
     assert project.build_image(
         image=image,
