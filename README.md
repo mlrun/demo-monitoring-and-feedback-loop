@@ -67,28 +67,6 @@ dotenv.load_dotenv() #you can create a .env file with the following variables, H
 OPENAI_MODEL = "gpt-4o"
 ```
 
-### Create an MLRun Project
-```
-# Create the project:
-project = mlrun.get_or_create_project(
-    name="llm-monitoring",
-    parameters={"image":".llm-serving",
-        "node_selector": None, # Change to a node selector that is used in GPUs nodes
-    },
-    user_project = True,
-    context="./src",
-)
-```
-**Enable model monitoring:**
-```
-from src.model_monitoring_utils import enable_model_monitoring
-
-# If this project was running with MM enabled pre-1.8.0, disable the old model monitoring to update configurations
-project.disable_model_monitoring(delete_stream_function=True)
-
-enable_model_monitoring(project=project, base_period=2)
-```
-
 ## Demo flow
 
 1. LLM as a Judge
@@ -101,8 +79,8 @@ enable_model_monitoring(project=project, base_period=2)
   - Create the evaluation set
   - Prompt engineering the judge
 - **Key files:**
-  - llm_as_a_judge
-  - model_monitoring_utils
+  - [llm_as_a_judge](./src/llm_as_a_judge.py)
+  - [model_monitoring_utils](./src/model_monitoring_utils.py)
 
 2. MLRun's Model Monitoring
 
@@ -116,9 +94,9 @@ enable_model_monitoring(project=project, base_period=2)
   - Check the performance of the base model
   - Evaluate the model using DeepEval on banking and non-banking questions
 - **Key files:**
-  - llm_as_a_judge
-  - deepeval_as_a_judge
-  - model-iris
+  - [llm_as_a_judge](./src/llm_as_a_judge.py)
+  - [deepeval_as_a_judge](./src/deepeval_as_a_judge.py)
+  - [model-iris](./src/model-iris.pkl)
 
 3. ORPO Fine-tuning
 
