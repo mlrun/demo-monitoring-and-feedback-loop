@@ -20,7 +20,7 @@ from typing import Any, Union
 
 import openai
 import pandas as pd
-import transformers
+# import transformers
 
 import mlrun
 import mlrun.common.schemas
@@ -466,97 +466,8 @@ class OpenAIJudge(BaseJudge, ABC):
         return self._invoke(prompt, model_name=self.benchmark_model_name)
 
 
-class HuggingfaceJudge(BaseJudge, ABC):
-    def __init__(
-        self,
-        metric_name: str,
-        judge_type: str,
-        model_name: str,
-        prompt_template: str = None,
-        prompt_config: dict[str, str] = None,
-        verbose: bool = True,
-        model_config: dict[str, Any] = None,
-        tokenizer_config: dict[str, Any] = None,
-        model_infer_config: dict[str, Any] = None,
-        benchmark_model_name: str = None,
-        benchmark_model_config: dict[str, Any] = None,
-        benchmark_tokenizer_config: dict[str, Any] = None,
-        benchmark_model_infer_config: dict[str, Any] = None,
-    ):
-        super().__init__(
-            metric_name=metric_name,
-            judge_type=judge_type,
-            model_name=model_name,
-            prompt_template=prompt_template,
-            prompt_config=prompt_config,
-            verbose=verbose,
-        )
-        self.model_config = model_config or {}
-        self.tokenizer_config = tokenizer_config or {}
-        self.model_infer_config = model_infer_config or {}
-        if self.verbose:
-            logger.info(f"Loading the judge model {self.model_name} from Huggingface")
-
-        # Loading the model:
-        self.tokenizer = transformers.AutoTokenizer.from_pretrained(
-            self.model_name, **self.tokenizer_config
-        )
-        self.model = transformers.AutoModelForCausalLM.from_pretrained(
-            self.model_name, **self.model_config
-        )
-
-        # Loading the benchmark model if needed:
-        if self.judge_type != JudgeTypes.single_grading.value:
-            if self.verbose:
-                logger.info(
-                    f"Loading the benchmark model {self.model_name} from Huggingface"
-                )
-            self.benchmark_model_name = benchmark_model_name
-            self.benchmark_model_config = benchmark_model_config or {}
-            self.benchmark_tokenizer_config = benchmark_tokenizer_config or {}
-            self.benchmark_model_infer_config = benchmark_model_infer_config or {}
-
-            self.benchmark_tokenizer = transformers.AutoTokenizer.from_pretrained(
-                self.benchmark_model_name, **self.benchmark_tokenizer_config
-            )
-            self.benchmark_model = transformers.AutoModelForCausalLM.from_pretrained(
-                self.benchmark_model_name, **self.benchmark_model_config
-            )
-
-    def _invoke(self, prompt: str) -> str:
-        input_ids = self.tokenizer(prompt, return_tensors="pt").input_ids
-        outputs = self.model.generate(
-            input_ids,
-            pad_token_id=self.tokenizer.pad_token_id,
-            eos_token_id=self.tokenizer.eos_token_id,
-            **self.model_infer_config,
-        )
-
-        response_ids = outputs[0]
-        response = self.tokenizer.decode(response_ids, skip_special_tokens=True)
-
-        return response
-
-    def _invoke_benchmark_model(self, prompt: str):
-        input_ids = self.benchmark_tokenizer(prompt, return_tensors="pt").input_ids
-        outputs = self.benchmark_model.generate(
-            input_ids,
-            pad_token_id=self.benchmark_tokenizer.pad_token_id,
-            eos_token_id=self.benchmark_tokenizer.eos_token_id,
-            **self.benchmark_model_infer_config,
-        )
-
-        response_ids = outputs[0]
-        response = self.benchmark_tokenizer.decode(
-            response_ids, skip_special_tokens=True
-        )
-
-        return response
-
-
 FRAMEWORKS = {
     "openai": OpenAIJudge,
-    "huggingface": HuggingfaceJudge,
 }
 
 STATUS_RESULT_MAPPING = {

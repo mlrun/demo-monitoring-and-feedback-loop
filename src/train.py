@@ -1,6 +1,5 @@
 import torch
 import transformers
-from datasets import load_dataset
 from peft import LoraConfig, prepare_model_for_kbit_training
 from transformers import AutoModelForCausalLM, AutoTokenizer, BitsAndBytesConfig
 from trl import ORPOConfig, ORPOTrainer
@@ -10,15 +9,13 @@ from mlrun.execution import MLClientCtx
 
 def train(
     context: MLClientCtx,
-    dataset: str,
+    training_dataset,
     base_model: str,
     new_model: str,
     device: str,
 ):
     transformers.logging.set_verbosity_warning()
     os.environ["HF_TOKEN"] = context.get_secret(key="HF_TOKEN")
-    dataset = load_dataset(dataset, split="train").shuffle(seed=42)
-    training_dataset = dataset.train_test_split(test_size=0.01)
 
     # QLoRA config
     bnb_config = BitsAndBytesConfig(

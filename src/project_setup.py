@@ -41,7 +41,6 @@ def setup(
         print(
             "Failed to set secrets. Please make sure you have the secrets set in the MLRun UI.")
         pass
-        
 
     # Unpack parameters:
     source = project.get_param(key="source")
@@ -59,7 +58,7 @@ def setup(
     # Set or build the default image:
     if default_image is None:
         print("Building default image for the demo:")
-        _build_image(project=project,image=image)
+        _build_image(project=project, image=image)
     else:
         project.set_default_image(default_image)
         project.save()
@@ -72,6 +71,14 @@ def setup(
         kind="serving",
         node_selector=node_selector,
         gpus=1,
+        requirements=[
+            "torch>=2.0.0",
+            "transformers>=4.36.0",
+            "accelerate>=0.25.0",
+            "peft>=0.7.0",
+            "sentencepiece>=0.1.99",
+        ],
+
     )
     _set_function(
         project=project,
@@ -82,7 +89,12 @@ def setup(
         gpus=1,
         node_selector=node_selector,
         node_name=node_name,
+        requirements=[
+            'transformers==4.56.1',
+            'peft==0.17.1',
+        ]
     )
+
     _set_function(
         project=project,
         func="generate_ds.py",
@@ -90,7 +102,7 @@ def setup(
         kind="job",
         node_selector=node_selector,
         node_name=node_name,
-        requirements=["openai==1.77.0","datasets==3.5.1","huggingface-hub==0.31.1"],
+        requirements=["openai==1.77.0", "huggingface-hub==0.31.1"],
         image="mlrun/mlrun",
     )
 
