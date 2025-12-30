@@ -1,5 +1,4 @@
 import openai
-from datasets import Dataset
 from huggingface_hub import create_repo, login
 
 import mlrun
@@ -87,15 +86,4 @@ def generate_ds(context: MLClientCtx, input_ds: str, hf_repo_id:str =None):
     df.drop(inplace=True, columns=["answer", "explanation"])
     context.log_dataset("new-train-ds", df)
     context.logger.info("Dataframe logged")
-    if hf_repo_id:
-        # Upload the dataset to HuggingFace
-        hf_dataset = Dataset.from_pandas(df)
-        login(token=hf_token)
 
-        # Create a new repository on the Hugging Face Hub
-        create_repo(hf_repo_id, repo_type="dataset", exist_ok=True)
-
-        # Push the dataset to the Hub
-        hf_dataset.push_to_hub(hf_repo_id)
-        context.log_result("dataset", hf_repo_id)
-        context.logger.info("Dataset uploaded to HF")

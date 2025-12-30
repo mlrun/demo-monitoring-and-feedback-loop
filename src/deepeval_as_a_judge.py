@@ -42,11 +42,9 @@ class DeepEvalAsAJudgeApplication(ModelMonitoringApplicationBase):
         self.name = "deepeval-as-a-judge"
         self.metric_name = kwargs.pop("metric_name")
         os.environ["OPENAI_API_KEY"] = mlrun.get_secret_or_env("OPENAI_API_KEY")
-        os.environ["OPENAI_BASE_URL"]= mlrun.get_secret_or_env("OPENAI_API_BASE")
-
+        os.environ["OPENAI_BASE_URL"] = mlrun.get_secret_or_env("OPENAI_API_BASE")
 
     def judge(self, sample_df: pd.DataFrame) -> pd.DataFrame:
-        
         result_df = pd.DataFrame(columns=["question", "answer", "score", "explanation"])
 
         correctness_metric = GEval(
@@ -54,26 +52,26 @@ class DeepEvalAsAJudgeApplication(ModelMonitoringApplicationBase):
             criteria="Correctness - determine if the actual output is related to banking.",
             evaluation_params=[LLMTestCaseParams.ACTUAL_OUTPUT]
         )
-        
+
         for i in range(len(sample_df)):
-            question, answer = sample_df.loc[i, "question"], sample_df.loc[i, "answer"]            
+            question, answer = sample_df.loc[i, "question"], sample_df.loc[i, "answer"]
             test_case = LLMTestCase(
                 input=question,
                 actual_output=answer
             )
             correctness_metric.measure(test_case)
-            
+
             correctness_metric.score, correctness_metric.reason
-            
+
             result_df.loc[i] = [
                 question,
                 answer,
                 correctness_metric.score,
                 correctness_metric.reason,
             ]
-            
+
         return result_df
-        
+
     def do_tracking(
         self,
         monitoring_context,
