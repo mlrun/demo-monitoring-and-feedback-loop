@@ -124,9 +124,6 @@ def _build_image(project: mlrun.projects.MlrunProject, image: str):
                     'pydantic>=2.0',
                     'langchain==0.2.17']
 
-    if sys.version_info.major == 3 and sys.version_info.minor == 9:
-        requirements += ["protobuf==3.20.3"]
-
     commands = [
         # Update apt-get to install ffmpeg (support audio file formats):
         "apt-get update -y",
