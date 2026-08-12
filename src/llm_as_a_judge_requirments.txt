@@ -1,5 +1,5 @@
 openai==1.108.0
-transformers==4.56.1
+transformers>=5.5.0
 optimum==1.27.0
 deepeval==2.5.5
 llama-index==0.14.2
