@@ -79,16 +79,17 @@ class HuggingFaceHandler(PlatformHandler):
 
         self.model_name = model_name
         # Load the HuggingFace model using langchain:
-        self.tokenizer = AutoTokenizer.from_pretrained(self.model_name)
+        self.tokenizer = AutoTokenizer.from_pretrained(self.model_name, trust_remote_code=False)
         device_map = kwargs.get("device_map", "auto")
 
-        self.tokenizer = AutoTokenizer.from_pretrained(self.model_name)
+        self.tokenizer = AutoTokenizer.from_pretrained(self.model_name, trust_remote_code=False)
         self.model = AutoModelForCausalLM.from_pretrained(
             self.model_name,
             low_cpu_mem_usage=True,
             return_dict=True,
             torch_dtype=torch.float16,
-            device_map=device_map,
+            device_map=device_map, 
+            trust_remote_code=False
         )
 
         # Merge adapter with base model
