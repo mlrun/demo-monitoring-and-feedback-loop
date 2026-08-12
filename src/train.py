@@ -44,7 +44,7 @@ def train(
     )
 
     # Load tokenizer
-    tokenizer = AutoTokenizer.from_pretrained(base_model)
+    tokenizer = AutoTokenizer.from_pretrained(base_model, trust_remote_code=False)
 
     # Load model
     model = AutoModelForCausalLM.from_pretrained(
@@ -52,6 +52,7 @@ def train(
         quantization_config=bnb_config,
         device_map=device,
         attn_implementation="eager",
+        trust_remote_code=False,
     )
 
     model = prepare_model_for_kbit_training(model)
