@@ -1,5 +1,5 @@
 tqdm==4.67.1
-transformers==4.56.1
+transformers>=5.5.0
 peft==0.17.1
 openai==1.108.0
 datasets==4.1.1
